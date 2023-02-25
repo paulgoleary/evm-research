@@ -1,0 +1,1008 @@
+{
+  "contractName": "GovernanceLockable",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "governance",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "governance",
+      "outputs": [
+        {
+          "internalType": "contract IGovernance",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "locked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "lock",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "unlock",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"governance\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":true,\"inputs\":[],\"name\":\"governance\",\"outputs\":[{\"internalType\":\"contract IGovernance\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"lock\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"locked\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"unlock\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"project:/contracts/common/mixin/GovernanceLockable.sol\":\"GovernanceLockable\"},\"evmVersion\":\"constantinople\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/common/governance/Governable.sol\":{\"keccak256\":\"0xc6039fc5f9cd606721afc20b51248040531adb7b2c7e8aa1931aee98114bc2b1\",\"urls\":[\"bzz-raw://f8626f084251f5dd581773f48bdd68a47eb93beeb1ec9eeaa116f04c7b2f1cd8\",\"dweb:/ipfs/Qmb2pGgXovzgwWEP6KnpXt9p9tszHgfqck8j4TCF9J9nRN\"]},\"project:/contracts/common/governance/IGovernance.sol\":{\"keccak256\":\"0x81b923a9b6ee8ee89a9741b5a74bc1318c5e570e09a66e20e26cb8850d76b367\",\"urls\":[\"bzz-raw://a634cba0419365bbbcb507ba519ea912e96ce0ad1369c736c5059ed3c86441a6\",\"dweb:/ipfs/QmTQSA3KNDo9yiZboXqNDSCSVbUshudqJNLMrXGcnxRJM3\"]},\"project:/contracts/common/mixin/GovernanceLockable.sol\":{\"keccak256\":\"0x4364d3542a1a4975ec5cb926017e551d17496d06fdfff08a15e0709500e1bff1\",\"urls\":[\"bzz-raw://af1af54cf2da561a759f4e0c3bd4f12aa0ceb22b957f1424b064de901ead209b\",\"dweb:/ipfs/Qmc8xArcsw9fzZkAGLCrdNkdeApMnxMom2o2th8RxqiaHy\"]},\"project:/contracts/common/mixin/Lockable.sol\":{\"keccak256\":\"0x59d2acf07b49a615d1bb5be488fdbc819a4b31c318a99800802455fc8ea1d562\",\"urls\":[\"bzz-raw://165e0ff5c1cb060ec4ffc7f2e352d38402959ecab77de2de1e39d6a637058220\",\"dweb:/ipfs/QmXtFFpKq5VBLwmfabs9oBiH56aTmWQzJqRWmyJnmbi5cT\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516102103803806102108339818101604052602081101561003357600080fd5b5051600080546001600160a01b0390921661010002610100600160a81b03199092169190911790556101a68061006a6000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80635aa6e67514610051578063a69df4b514610075578063cf3090121461007f578063f83d08ba1461009b575b600080fd5b6100596100a3565b604080516001600160a01b039092168252519081900360200190f35b61007d6100b7565b005b6100876100c9565b604080519115158252519081900360200190f35b61007d6100d2565b60005461010090046001600160a01b031681565b6100bf6100e2565b6100c7610130565b565b60005460ff1681565b6100da6100e2565b6100c761013c565b60005461010090046001600160a01b031633146100c75760405162461bcd60e51b815260040180806020018281038252602681526020018061014c6026913960400191505060405180910390fd5b6000805460ff19169055565b6000805460ff1916600117905556fe4f6e6c7920676f7665726e616e636520636f6e747261637420697320617574686f72697a6564a265627a7a72315820028274366b3acc41790c7df87cbf02e1b65b52ee923fbc3d802ce5ffd85429e064736f6c63430005110032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80635aa6e67514610051578063a69df4b514610075578063cf3090121461007f578063f83d08ba1461009b575b600080fd5b6100596100a3565b604080516001600160a01b039092168252519081900360200190f35b61007d6100b7565b005b6100876100c9565b604080519115158252519081900360200190f35b61007d6100d2565b60005461010090046001600160a01b031681565b6100bf6100e2565b6100c7610130565b565b60005460ff1681565b6100da6100e2565b6100c761013c565b60005461010090046001600160a01b031633146100c75760405162461bcd60e51b815260040180806020018281038252602681526020018061014c6026913960400191505060405180910390fd5b6000805460ff19169055565b6000805460ff1916600117905556fe4f6e6c7920676f7665726e616e636520636f6e747261637420697320617574686f72697a6564a265627a7a72315820028274366b3acc41790c7df87cbf02e1b65b52ee923fbc3d802ce5ffd85429e064736f6c63430005110032",
+  "sourceMap": "124:274:65:-;;;182:64;8:9:-1;5:2;;;30:1;27;20:12;5:2;182:64:65;;;;;;;;;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;182:64:65;185:10:44;:37;;-1:-1:-1;;;;;185:37:44;;;;;-1:-1:-1;;;;;;185:37:44;;;;;;;;;124:274:65;;;;;;",
+  "deployedSourceMap": "124:274:65:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;124:274:65;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;99:29:44;;;:::i;:::-;;;;-1:-1:-1;;;;;99:29:44;;;;;;;;;;;;;;325:71:65;;;:::i;:::-;;49:18:67;;;:::i;:::-;;;;;;;;;;;;;;;;;;252:67:65;;;:::i;99:29:44:-;;;;;;-1:-1:-1;;;;;99:29:44;;:::o;325:71:65:-;271:19:44;:17;:19::i;:::-;375:14:65;:12;:14::i;:::-;325:71::o;49:18:67:-;;;;;;:::o;252:67:65:-;271:19:44;:17;:19::i;:::-;300:12:65;:10;:12::i;314:177:44:-;409:10;;;;;-1:-1:-1;;;;;409:10:44;387;:33;366:118;;;;-1:-1:-1;;;366:118:44;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;301:56:67;345:5;336:14;;-1:-1:-1;;336:14:67;;;301:56::o;242:53::-;275:6;:13;;-1:-1:-1;;275:13:67;284:4;275:13;;;242:53::o",
+  "source": "pragma solidity ^0.5.2;\n\nimport {Governable} from \"../governance/Governable.sol\";\nimport {Lockable} from \"./Lockable.sol\";\n\ncontract GovernanceLockable is Lockable, Governable {\n    constructor(address governance) public Governable(governance) {}\n\n    function lock() public onlyGovernance {\n        super.lock();\n    }\n\n    function unlock() public onlyGovernance {\n        super.unlock();\n    }\n}\n",
+  "sourcePath": "/Users/pauloleary/code/maticnetwork/contracts/contracts/common/mixin/GovernanceLockable.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/common/mixin/GovernanceLockable.sol",
+    "exportedSymbols": {
+      "GovernanceLockable": [
+        9976
+      ]
+    },
+    "id": 9977,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 9936,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:65"
+      },
+      {
+        "absolutePath": "project:/contracts/common/governance/Governable.sol",
+        "file": "../governance/Governable.sol",
+        "id": 9938,
+        "nodeType": "ImportDirective",
+        "scope": 9977,
+        "sourceUnit": 7435,
+        "src": "25:56:65",
+        "symbolAliases": [
+          {
+            "foreign": 9937,
+            "local": null
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/common/mixin/Lockable.sol",
+        "file": "./Lockable.sol",
+        "id": 9940,
+        "nodeType": "ImportDirective",
+        "scope": 9977,
+        "sourceUnit": 10035,
+        "src": "82:40:65",
+        "symbolAliases": [
+          {
+            "foreign": 9939,
+            "local": null
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 9941,
+              "name": "Lockable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 10034,
+              "src": "155:8:65",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Lockable_$10034",
+                "typeString": "contract Lockable"
+              }
+            },
+            "id": 9942,
+            "nodeType": "InheritanceSpecifier",
+            "src": "155:8:65"
+          },
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 9943,
+              "name": "Governable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 7434,
+              "src": "165:10:65",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Governable_$7434",
+                "typeString": "contract Governable"
+              }
+            },
+            "id": 9944,
+            "nodeType": "InheritanceSpecifier",
+            "src": "165:10:65"
+          }
+        ],
+        "contractDependencies": [
+          7434,
+          10034
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 9976,
+        "linearizedBaseContracts": [
+          9976,
+          7434,
+          10034
+        ],
+        "name": "GovernanceLockable",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 9952,
+              "nodeType": "Block",
+              "src": "244:2:65",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 9953,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "id": 9949,
+                    "name": "governance",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 9946,
+                    "src": "232:10:65",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 9950,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 9948,
+                  "name": "Governable",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 7434,
+                  "src": "221:10:65",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_type$_t_contract$_Governable_$7434_$",
+                    "typeString": "type(contract Governable)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "221:22:65"
+              }
+            ],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9947,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9946,
+                  "name": "governance",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9953,
+                  "src": "194:18:65",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9945,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "194:7:65",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "193:20:65"
+            },
+            "returnParameters": {
+              "id": 9951,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "244:0:65"
+            },
+            "scope": 9976,
+            "src": "182:64:65",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 9963,
+              "nodeType": "Block",
+              "src": "290:29:65",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 9958,
+                        "name": "super",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29176,
+                        "src": "300:5:65",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_super$_GovernanceLockable_$9976",
+                          "typeString": "contract super GovernanceLockable"
+                        }
+                      },
+                      "id": 9960,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "lock",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 10025,
+                      "src": "300:10:65",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
+                        "typeString": "function ()"
+                      }
+                    },
+                    "id": 9961,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "300:12:65",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 9962,
+                  "nodeType": "ExpressionStatement",
+                  "src": "300:12:65"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 9964,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 9956,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 9955,
+                  "name": "onlyGovernance",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 7419,
+                  "src": "275:14:65",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "275:14:65"
+              }
+            ],
+            "name": "lock",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9954,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "265:2:65"
+            },
+            "returnParameters": {
+              "id": 9957,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "290:0:65"
+            },
+            "scope": 9976,
+            "src": "252:67:65",
+            "stateMutability": "nonpayable",
+            "superFunction": 10025,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 9974,
+              "nodeType": "Block",
+              "src": "365:31:65",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 9969,
+                        "name": "super",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29176,
+                        "src": "375:5:65",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_super$_GovernanceLockable_$9976",
+                          "typeString": "contract super GovernanceLockable"
+                        }
+                      },
+                      "id": 9971,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "unlock",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 10033,
+                      "src": "375:12:65",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
+                        "typeString": "function ()"
+                      }
+                    },
+                    "id": 9972,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "375:14:65",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 9973,
+                  "nodeType": "ExpressionStatement",
+                  "src": "375:14:65"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 9975,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 9967,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 9966,
+                  "name": "onlyGovernance",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 7419,
+                  "src": "350:14:65",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "350:14:65"
+              }
+            ],
+            "name": "unlock",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9965,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "340:2:65"
+            },
+            "returnParameters": {
+              "id": 9968,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "365:0:65"
+            },
+            "scope": 9976,
+            "src": "325:71:65",
+            "stateMutability": "nonpayable",
+            "superFunction": 10033,
+            "visibility": "public"
+          }
+        ],
+        "scope": 9977,
+        "src": "124:274:65"
+      }
+    ],
+    "src": "0:399:65"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/common/mixin/GovernanceLockable.sol",
+      "exportedSymbols": {
+        "GovernanceLockable": [
+          9976
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.5",
+            ".2"
+          ]
+        },
+        "id": 9936,
+        "name": "PragmaDirective",
+        "src": "0:23:65"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 7435,
+          "absolutePath": "project:/contracts/common/governance/Governable.sol",
+          "file": "../governance/Governable.sol",
+          "scope": 9977,
+          "symbolAliases": [
+            {
+              "foreign": 9937,
+              "local": null
+            }
+          ],
+          "unitAlias": ""
+        },
+        "id": 9938,
+        "name": "ImportDirective",
+        "src": "25:56:65"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 10035,
+          "absolutePath": "project:/contracts/common/mixin/Lockable.sol",
+          "file": "./Lockable.sol",
+          "scope": 9977,
+          "symbolAliases": [
+            {
+              "foreign": 9939,
+              "local": null
+            }
+          ],
+          "unitAlias": ""
+        },
+        "id": 9940,
+        "name": "ImportDirective",
+        "src": "82:40:65"
+      },
+      {
+        "attributes": {
+          "contractDependencies": [
+            7434,
+            10034
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            9976,
+            7434,
+            10034
+          ],
+          "name": "GovernanceLockable",
+          "scope": 9977
+        },
+        "children": [
+          {
+            "attributes": {
+              "arguments": null
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "Lockable",
+                  "referencedDeclaration": 10034,
+                  "type": "contract Lockable"
+                },
+                "id": 9941,
+                "name": "UserDefinedTypeName",
+                "src": "155:8:65"
+              }
+            ],
+            "id": 9942,
+            "name": "InheritanceSpecifier",
+            "src": "155:8:65"
+          },
+          {
+            "attributes": {
+              "arguments": null
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "Governable",
+                  "referencedDeclaration": 7434,
+                  "type": "contract Governable"
+                },
+                "id": 9943,
+                "name": "UserDefinedTypeName",
+                "src": "165:10:65"
+              }
+            ],
+            "id": 9944,
+            "name": "InheritanceSpecifier",
+            "src": "165:10:65"
+          },
+          {
+            "attributes": {
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": true,
+              "kind": "constructor",
+              "name": "",
+              "scope": 9976,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "governance",
+                      "scope": 9953,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9945,
+                        "name": "ElementaryTypeName",
+                        "src": "194:7:65"
+                      }
+                    ],
+                    "id": 9946,
+                    "name": "VariableDeclaration",
+                    "src": "194:18:65"
+                  }
+                ],
+                "id": 9947,
+                "name": "ParameterList",
+                "src": "193:20:65"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9951,
+                "name": "ParameterList",
+                "src": "244:0:65"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 7434,
+                      "type": "type(contract Governable)",
+                      "value": "Governable"
+                    },
+                    "id": 9948,
+                    "name": "Identifier",
+                    "src": "221:10:65"
+                  },
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 9946,
+                      "type": "address",
+                      "value": "governance"
+                    },
+                    "id": 9949,
+                    "name": "Identifier",
+                    "src": "232:10:65"
+                  }
+                ],
+                "id": 9950,
+                "name": "ModifierInvocation",
+                "src": "221:22:65"
+              },
+              {
+                "attributes": {
+                  "statements": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9952,
+                "name": "Block",
+                "src": "244:2:65"
+              }
+            ],
+            "id": 9953,
+            "name": "FunctionDefinition",
+            "src": "182:64:65"
+          },
+          {
+            "attributes": {
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "name": "lock",
+              "scope": 9976,
+              "stateMutability": "nonpayable",
+              "superFunction": 10025,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9954,
+                "name": "ParameterList",
+                "src": "265:2:65"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9957,
+                "name": "ParameterList",
+                "src": "290:0:65"
+              },
+              {
+                "attributes": {
+                  "arguments": null
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 7419,
+                      "type": "modifier ()",
+                      "value": "onlyGovernance"
+                    },
+                    "id": 9955,
+                    "name": "Identifier",
+                    "src": "275:14:65"
+                  }
+                ],
+                "id": 9956,
+                "name": "ModifierInvocation",
+                "src": "275:14:65"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            null
+                          ],
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                null
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "lock",
+                              "referencedDeclaration": 10025,
+                              "type": "function ()"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 29176,
+                                  "type": "contract super GovernanceLockable",
+                                  "value": "super"
+                                },
+                                "id": 9958,
+                                "name": "Identifier",
+                                "src": "300:5:65"
+                              }
+                            ],
+                            "id": 9960,
+                            "name": "MemberAccess",
+                            "src": "300:10:65"
+                          }
+                        ],
+                        "id": 9961,
+                        "name": "FunctionCall",
+                        "src": "300:12:65"
+                      }
+                    ],
+                    "id": 9962,
+                    "name": "ExpressionStatement",
+                    "src": "300:12:65"
+                  }
+                ],
+                "id": 9963,
+                "name": "Block",
+                "src": "290:29:65"
+              }
+            ],
+            "id": 9964,
+            "name": "FunctionDefinition",
+            "src": "252:67:65"
+          },
+          {
+            "attributes": {
+              "documentation": null,
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "name": "unlock",
+              "scope": 9976,
+              "stateMutability": "nonpayable",
+              "superFunction": 10033,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9965,
+                "name": "ParameterList",
+                "src": "340:2:65"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9968,
+                "name": "ParameterList",
+                "src": "365:0:65"
+              },
+              {
+                "attributes": {
+                  "arguments": null
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 7419,
+                      "type": "modifier ()",
+                      "value": "onlyGovernance"
+                    },
+                    "id": 9966,
+                    "name": "Identifier",
+                    "src": "350:14:65"
+                  }
+                ],
+                "id": 9967,
+                "name": "ModifierInvocation",
+                "src": "350:14:65"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            null
+                          ],
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                null
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "unlock",
+                              "referencedDeclaration": 10033,
+                              "type": "function ()"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 29176,
+                                  "type": "contract super GovernanceLockable",
+                                  "value": "super"
+                                },
+                                "id": 9969,
+                                "name": "Identifier",
+                                "src": "375:5:65"
+                              }
+                            ],
+                            "id": 9971,
+                            "name": "MemberAccess",
+                            "src": "375:12:65"
+                          }
+                        ],
+                        "id": 9972,
+                        "name": "FunctionCall",
+                        "src": "375:14:65"
+                      }
+                    ],
+                    "id": 9973,
+                    "name": "ExpressionStatement",
+                    "src": "375:14:65"
+                  }
+                ],
+                "id": 9974,
+                "name": "Block",
+                "src": "365:31:65"
+              }
+            ],
+            "id": 9975,
+            "name": "FunctionDefinition",
+            "src": "325:71:65"
+          }
+        ],
+        "id": 9976,
+        "name": "ContractDefinition",
+        "src": "124:274:65"
+      }
+    ],
+    "id": 9977,
+    "name": "SourceUnit",
+    "src": "0:399:65"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.17+commit.d19bba13.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.10",
+  "updatedAt": "2023-02-04T18:04:26.086Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

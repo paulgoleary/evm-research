@@ -1,0 +1,326 @@
+{
+  "contractName": "ProxyTestImplStorageLayoutChange",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "a",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "b",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.17+commit.d19bba13\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"a\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"b\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"project:/contracts/test/Proxy/ProxyTestImplStorageLayoutChange.sol\":\"ProxyTestImplStorageLayoutChange\"},\"evmVersion\":\"constantinople\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/common/mixin/Initializable.sol\":{\"keccak256\":\"0x9294b51ceeffc60d81315aab9f60551acdc459c11eb2c8e278e3de892086d63f\",\"urls\":[\"bzz-raw://38174fe793bda99914e46612026c4a62e9f54fac7591c25a04209c5d6fdc8cc2\",\"dweb:/ipfs/QmW76HFTphdaDynMauJivowUCytBmfQksyqan9cNVHrspj\"]},\"project:/contracts/test/Proxy/ProxyTestImplStorageLayoutChange.sol\":{\"keccak256\":\"0xa5607b9dc88c3b9764333d50f58e7a4db1c5c280e8797fe96a3068ad1cd27f6a\",\"urls\":[\"bzz-raw://f75bee93f02bb5125f4ee2cc6736a566a183699798382bc5498178df43946b9c\",\"dweb:/ipfs/QmUyH31rkRKmuoVEGuCYewt2zcutaLe3E8Qb9Ut2461Bnq\"]}},\"version\":1}",
+  "bytecode": "0x60806040526000805460ff19169055348015601957600080fd5b506096806100286000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c80630dbe671f1460375780634df7e3d014604f575b600080fd5b603d6055565b60408051918252519081900360200190f35b603d605b565b60025481565b6001548156fea265627a7a723158207a21df7f5b7b7c67c869dbf59f47a7ee414542ffd3f527633d9946b375bfbccf64736f6c63430005110032",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060325760003560e01c80630dbe671f1460375780634df7e3d014604f575b600080fd5b603d6055565b60408051918252519081900360200190f35b603d605b565b60025481565b6001548156fea265627a7a723158207a21df7f5b7b7c67c869dbf59f47a7ee414542ffd3f527633d9946b375bfbccf64736f6c63430005110032",
+  "sourceMap": "94:106:120:-;;;68:5:66;54:19;;-1:-1:-1;;54:19:66;;;94:106:120;5:2:-1;;;;30:1;27;20:12;5:2;94:106:120;;;;;;;",
+  "deployedSourceMap": "94:106:120:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;94:106:120;;;;;;;;;;;;;;;;;;;;;;;;181:16;;;:::i;:::-;;;;;;;;;;;;;;;;159;;;:::i;181:::-;;;;:::o;159:::-;;;;:::o",
+  "source": "pragma solidity ^0.5.2;\n\nimport {Initializable} from \"../../common/mixin/Initializable.sol\";\n\ncontract ProxyTestImplStorageLayoutChange is Initializable {\n    uint256 public b;\n    uint256 public a;\n}\n",
+  "sourcePath": "/Users/pauloleary/code/maticnetwork/contracts/contracts/test/Proxy/ProxyTestImplStorageLayoutChange.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/test/Proxy/ProxyTestImplStorageLayoutChange.sol",
+    "exportedSymbols": {
+      "ProxyTestImplStorageLayoutChange": [
+        28079
+      ]
+    },
+    "id": 28080,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 28070,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:120"
+      },
+      {
+        "absolutePath": "project:/contracts/common/mixin/Initializable.sol",
+        "file": "../../common/mixin/Initializable.sol",
+        "id": 28072,
+        "nodeType": "ImportDirective",
+        "scope": 28080,
+        "sourceUnit": 9997,
+        "src": "25:67:120",
+        "symbolAliases": [
+          {
+            "foreign": 28071,
+            "local": null
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 28073,
+              "name": "Initializable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 9996,
+              "src": "139:13:120",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Initializable_$9996",
+                "typeString": "contract Initializable"
+              }
+            },
+            "id": 28074,
+            "nodeType": "InheritanceSpecifier",
+            "src": "139:13:120"
+          }
+        ],
+        "contractDependencies": [
+          9996
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 28079,
+        "linearizedBaseContracts": [
+          28079,
+          9996
+        ],
+        "name": "ProxyTestImplStorageLayoutChange",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 28076,
+            "name": "b",
+            "nodeType": "VariableDeclaration",
+            "scope": 28079,
+            "src": "159:16:120",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 28075,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "159:7:120",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 28078,
+            "name": "a",
+            "nodeType": "VariableDeclaration",
+            "scope": 28079,
+            "src": "181:16:120",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 28077,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "181:7:120",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 28080,
+        "src": "94:106:120"
+      }
+    ],
+    "src": "0:201:120"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/test/Proxy/ProxyTestImplStorageLayoutChange.sol",
+      "exportedSymbols": {
+        "ProxyTestImplStorageLayoutChange": [
+          28079
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.5",
+            ".2"
+          ]
+        },
+        "id": 28070,
+        "name": "PragmaDirective",
+        "src": "0:23:120"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 9997,
+          "absolutePath": "project:/contracts/common/mixin/Initializable.sol",
+          "file": "../../common/mixin/Initializable.sol",
+          "scope": 28080,
+          "symbolAliases": [
+            {
+              "foreign": 28071,
+              "local": null
+            }
+          ],
+          "unitAlias": ""
+        },
+        "id": 28072,
+        "name": "ImportDirective",
+        "src": "25:67:120"
+      },
+      {
+        "attributes": {
+          "contractDependencies": [
+            9996
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            28079,
+            9996
+          ],
+          "name": "ProxyTestImplStorageLayoutChange",
+          "scope": 28080
+        },
+        "children": [
+          {
+            "attributes": {
+              "arguments": null
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "Initializable",
+                  "referencedDeclaration": 9996,
+                  "type": "contract Initializable"
+                },
+                "id": 28073,
+                "name": "UserDefinedTypeName",
+                "src": "139:13:120"
+              }
+            ],
+            "id": 28074,
+            "name": "InheritanceSpecifier",
+            "src": "139:13:120"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "b",
+              "scope": 28079,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "uint256",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "name": "uint256",
+                  "type": "uint256"
+                },
+                "id": 28075,
+                "name": "ElementaryTypeName",
+                "src": "159:7:120"
+              }
+            ],
+            "id": 28076,
+            "name": "VariableDeclaration",
+            "src": "159:16:120"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "a",
+              "scope": 28079,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "uint256",
+              "value": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "name": "uint256",
+                  "type": "uint256"
+                },
+                "id": 28077,
+                "name": "ElementaryTypeName",
+                "src": "181:7:120"
+              }
+            ],
+            "id": 28078,
+            "name": "VariableDeclaration",
+            "src": "181:16:120"
+          }
+        ],
+        "id": 28079,
+        "name": "ContractDefinition",
+        "src": "94:106:120"
+      }
+    ],
+    "id": 28080,
+    "name": "SourceUnit",
+    "src": "0:201:120"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.17+commit.d19bba13.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.10",
+  "updatedAt": "2023-02-04T18:04:26.233Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}
