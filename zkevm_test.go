@@ -1,6 +1,7 @@
 package hub_research
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"github.com/paulgoleary/hub-research/crypto"
@@ -178,4 +179,234 @@ func TestZKEVMCheckHPS(t *testing.T) {
 		require.NoError(t, err)
 		println(fmt.Sprintf("%v: %v", i, blk.StateRoot.String()))
 	}
+}
+
+// on Goerli
+var zkEVMVerifyAddr = ethgo.HexToAddress("0x5e2e663A39205348cE985Bccc9673Ca25AeE727E")
+
+// Function: trustedVerifyBatches(
+// uint64 pendingStateNum,
+// uint64 initNumBatch,
+// uint64 finalNewBatch,
+// bytes32 newLocalExitRoot,
+// bytes32 newStateRoot,
+// uint256[2] proofA,
+// uint256[2][2] proofB,
+// uint256[2] proofC)
+
+// MethodID: 0xedc41121
+//[0]:  0000000000000000000000000000000000000000000000000000000000000000
+//[1], initNumBatch:  0000000000000000000000000000000000000000000000000000000000014657
+//[2], finalNewBatch: 000000000000000000000000000000000000000000000000000000000001465c
+//[3], newLocalExitRoot:  cc5ca5d55023dc458cba48bb094921fc98c3ac6b2bceffef19594c7ccb1974de
+//[4], newStateRoot:  48bca36616b63348fc0cc17cfc12cef282f35039449f2cd91805e31795ff134f
+//[5]:  1ddbf8ef700843e0b96fba5d2c12b159dd959ab1f43282151c1f90ebb7e39bf7
+//[6]:  1c2a1fa0de0a138f32536c01db65a75eb698abcd3f288ab545790db37702d6ac
+//[7]:  083d90b6b9a129d7ddcf377b3d4db1a4fa33fcca1da5985babce7e821046749d
+//[8]:  15040c9e8694e9517ed4df7669db8b968b98d95692f31cd8fd9dcd132ece3e94
+//[9]:  093ffd9e5037639c37016c226bbcee1530c01f69bccd282787584a6218297ae8
+//[10]: 0736a2bd95a2407d3df79991a492a08f6ad2800507725c65908a3c0ee572d7a2
+//[11]: 14acb746d4cb1ecf9246ce02cb75fa25905c2b32349712483deaeb48b42a4430
+//[12]: 2f77aff585307533de930c3cc8e207fe33f586da0ea26dc9787ca08b85008969
+
+// uint256 internal constant _RFIELD =
+//
+//	21888242871839275222246405745257275088548364400416034343698204186575808495617;
+var RFIELD, _ = new(big.Int).SetString("21888242871839275222246405745257275088548364400416034343698204186575808495617", 10)
+
+type extKey struct {
+	a ethgo.Address
+}
+
+func (e *extKey) Address() ethgo.Address {
+	return e.a
+}
+
+func (e *extKey) Sign(hash []byte) ([]byte, error) {
+	panic("not implemented")
+}
+
+var _ ethgo.Key = &ecdsaKey{}
+
+func TestZKEVMVerify(t *testing.T) {
+
+	initNumBatch, _ := new(big.Int).SetString("0000000000000000000000000000000000000000000000000000000000014657", 16)
+	finalNewBatch, _ := new(big.Int).SetString("000000000000000000000000000000000000000000000000000000000001465c", 16)
+
+	ec, err := jsonrpc.NewClient(os.Getenv("ZKEVM_GOERLI_URL"))
+	require.NoError(t, err)
+
+	msgSender := ethgo.HexToAddress("0x4756bc913ea1f59e8c046d53e09e8cb6191d4d9e")
+	k := &extKey{msgSender}
+
+	zkevm, err := loadArtifact(ec, "zkevm/PolygonZkEVM", k, zkEVMVerifyAddr)
+	require.NoError(t, err)
+
+	res, err := zkevm.Call("getLastVerifiedBatch", ethgo.Latest)
+	require.NoError(t, err)
+	require.True(t, len(res) > 0)
+	currentLastVerifiedBatch, ok := res["0"].(uint64)
+	require.True(t, ok)
+
+	res, err = zkevm.Call("batchNumToStateRoot", ethgo.Latest, initNumBatch)
+	require.NoError(t, err)
+	require.True(t, len(res) > 0)
+	oldStateRoot, ok := res["0"].([32]byte)
+	require.True(t, ok)
+
+	// require(
+	//  initNumBatch <= currentLastVerifiedBatch,
+	//  "PolygonZkEVM::_verifyBatches: initNumBatch must be less or equal than currentLastVerifiedBatch"
+	require.True(t, initNumBatch.Uint64() <= currentLastVerifiedBatch)
+
+	//         require(
+	//            finalNewBatch > currentLastVerifiedBatch,
+	//            "PolygonZkEVM::_verifyBatches: finalNewBatch must be bigger than currentLastVerifiedBatch"
+	// require.True(t, finalNewBatch.Uint64() > currentLastVerifiedBatch) won't be true right now ...?
+
+	//         bytes32 oldAccInputHash = sequencedBatches[initNumBatch].accInputHash;
+	//        bytes32 newAccInputHash = sequencedBatches[finalNewBatch].accInputHash;
+	res, err = zkevm.Call("sequencedBatches", ethgo.Latest, initNumBatch)
+	require.NoError(t, err)
+	require.True(t, len(res) > 0)
+	oldAccInputHash, ok := res["accInputHash"].([32]byte)
+	require.True(t, ok)
+
+	res, err = zkevm.Call("sequencedBatches", ethgo.Latest, finalNewBatch)
+	require.NoError(t, err)
+	require.True(t, len(res) > 0)
+	newAccInputHash, ok := res["accInputHash"].([32]byte)
+	require.True(t, ok)
+
+	//             abi.encodePacked(
+	//                msg.sender,
+	//                oldStateRoot,
+	//                oldAccInputHash,
+	//                initNumBatch,
+	//                chainID,
+	//                newStateRoot,
+	//                newAccInputHash,
+	//                newLocalExitRoot,
+	//                finalNewBatch
+	//            );
+	calcSnarkBytes := encodePacked(
+		msgSender.Bytes(),
+		oldStateRoot[:],
+		oldAccInputHash[:],
+		padUint64(initNumBatch),
+		encodeUint64("1422"),                                                                  // chainID
+		encodeBytesString("48bca36616b63348fc0cc17cfc12cef282f35039449f2cd91805e31795ff134f"), // newStateRoot
+		newAccInputHash[:],
+		encodeBytesString("cc5ca5d55023dc458cba48bb094921fc98c3ac6b2bceffef19594c7ccb1974de"), // newLocalExitRoot
+		padUint64(finalNewBatch),
+	)
+
+	//     function getInputSnarkBytes(
+	//        uint64 initNumBatch,
+	//        uint64 finalNewBatch,
+	//        bytes32 newLocalExitRoot,
+	//        bytes32 oldStateRoot,
+	//        bytes32 newStateRoot
+	//    ) public view returns (bytes memory) {
+	res, err = zkevm.Call("getInputSnarkBytes", ethgo.Latest,
+		initNumBatch,
+		finalNewBatch,
+		encodeBytesString("cc5ca5d55023dc458cba48bb094921fc98c3ac6b2bceffef19594c7ccb1974de"),
+		oldStateRoot,
+		encodeBytesString("48bca36616b63348fc0cc17cfc12cef282f35039449f2cd91805e31795ff134f"),
+	)
+	require.NoError(t, err)
+	checkSnarkBytes, ok := res["0"].([]byte)
+	require.True(t, ok)
+
+	require.Equal(t, checkSnarkBytes, calcSnarkBytes)
+
+	//         uint256 inputSnark = uint256(sha256(snarkHashBytes)) % _RFIELD;
+	h := sha256.New()
+	h.Write(calcSnarkBytes)
+	inputSnark := new(big.Int).SetBytes(h.Sum(nil))
+	inputSnark = inputSnark.Mod(inputSnark, RFIELD)
+
+	// rollupVerifier
+	res, err = zkevm.Call("rollupVerifier", ethgo.Latest)
+	require.NoError(t, err)
+	zkEVMVerifierAddr, ok := res["0"].(ethgo.Address)
+	require.True(t, ok)
+
+	zkVerifier, err := loadArtifact(ec, "zkevm/Verifier", k, zkEVMVerifierAddr)
+	require.NoError(t, err)
+
+	//     function verifyProof(
+	//        uint[2] memory a,
+	//        uint[2][2] memory b,
+	//        uint[2] memory c,
+	//        uint[1] memory input
+	//    ) public view returns (bool r) {
+
+	////[5]:  1ddbf8ef700843e0b96fba5d2c12b159dd959ab1f43282151c1f90ebb7e39bf7
+	////[6]:  1c2a1fa0de0a138f32536c01db65a75eb698abcd3f288ab545790db37702d6ac
+
+	////[7]:  083d90b6b9a129d7ddcf377b3d4db1a4fa33fcca1da5985babce7e821046749d
+	////[8]:  15040c9e8694e9517ed4df7669db8b968b98d95692f31cd8fd9dcd132ece3e94
+	////[9]:  093ffd9e5037639c37016c226bbcee1530c01f69bccd282787584a6218297ae8
+	////[10]: 0736a2bd95a2407d3df79991a492a08f6ad2800507725c65908a3c0ee572d7a2
+
+	////[11]: 14acb746d4cb1ecf9246ce02cb75fa25905c2b32349712483deaeb48b42a4430
+	////[12]: 2f77aff585307533de930c3cc8e207fe33f586da0ea26dc9787ca08b85008969
+
+	a0, _ := new(big.Int).SetString("1ddbf8ef700843e0b96fba5d2c12b159dd959ab1f43282151c1f90ebb7e39bf7", 16)
+	a1, _ := new(big.Int).SetString("1c2a1fa0de0a138f32536c01db65a75eb698abcd3f288ab545790db37702d6ac", 16)
+	a := [2]*big.Int{a0, a1}
+
+	b00, _ := new(big.Int).SetString("083d90b6b9a129d7ddcf377b3d4db1a4fa33fcca1da5985babce7e821046749d", 16)
+	b01, _ := new(big.Int).SetString("15040c9e8694e9517ed4df7669db8b968b98d95692f31cd8fd9dcd132ece3e94", 16)
+	b10, _ := new(big.Int).SetString("093ffd9e5037639c37016c226bbcee1530c01f69bccd282787584a6218297ae8", 16)
+	b11, _ := new(big.Int).SetString("0736a2bd95a2407d3df79991a492a08f6ad2800507725c65908a3c0ee572d7a2", 16)
+	b := [2][2]*big.Int{{b00, b01}, {b10, b11}}
+
+	c0, _ := new(big.Int).SetString("14acb746d4cb1ecf9246ce02cb75fa25905c2b32349712483deaeb48b42a4430", 16)
+	c1, _ := new(big.Int).SetString("2f77aff585307533de930c3cc8e207fe33f586da0ea26dc9787ca08b85008969", 16)
+	c := [2]*big.Int{c0, c1}
+
+	res, err = zkVerifier.Call("verifyProof", ethgo.Latest, a, b, c, [1]*big.Int{inputSnark})
+	require.NoError(t, err)
+	checkSnark, ok := res["r"].(bool)
+	require.True(t, ok)
+	require.True(t, checkSnark)
+
+}
+
+func TestStateRoots(t *testing.T) {
+
+	ecRoot, err := jsonrpc.NewClient(os.Getenv("ZKEVM_GOERLI_URL"))
+	require.NoError(t, err)
+
+	ecChild, err := jsonrpc.NewClient(os.Getenv("ZKEVM_URL"))
+	require.NoError(t, err)
+
+	msgSender := ethgo.HexToAddress("0x4756bc913ea1f59e8c046d53e09e8cb6191d4d9e")
+	k := &extKey{msgSender}
+
+	zkevm, err := loadArtifact(ecRoot, "zkevm/PolygonZkEVM", k, zkEVMVerifyAddr)
+	require.NoError(t, err)
+
+	res, err := zkevm.Call("bridgeAddress", ethgo.Latest)
+	require.NoError(t, err)
+	bridgeAddr, ok := res["0"].(ethgo.Address)
+	require.True(t, ok)
+	println(bridgeAddr.String())
+
+	for i := int64(0); i < 10; i++ {
+		blk, err := ecChild.Eth().GetBlockByNumber(ethgo.BlockNumber(i), false)
+		require.NoError(t, err)
+		println(fmt.Sprintf("block %v: %v", i, blk.StateRoot.String()))
+
+		res, err := zkevm.Call("batchNumToStateRoot", ethgo.Latest, big.NewInt(i))
+		require.NoError(t, err)
+		require.True(t, len(res) > 0)
+		zeroStateRoot, ok := res["0"].([32]byte)
+		require.True(t, ok)
+		println(fmt.Sprintf("batch %v: %v", i, hex.EncodeToString(zeroStateRoot[:])))
+	}
+
 }
