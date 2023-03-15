@@ -1,0 +1,89 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "System",
+  "sourceName": "contracts/child/System.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "NATIVE_TOKEN_CONTRACT",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "NATIVE_TRANSFER_PRECOMPILE",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "NATIVE_TRANSFER_PRECOMPILE_GAS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SYSTEM",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VALIDATOR_PKCHECK_PRECOMPILE",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VALIDATOR_PKCHECK_PRECOMPILE_GAS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5060f58061001f6000396000f3fe6080604052348015600f57600080fd5b5060043610605a5760003560e01c8063284017f514605f5780633b878c2214608457806351351d5314608c578063947287cf14609957806397e5230d1460ae578063e0563ab11460b7575b600080fd5b606761202081565b6040516001600160a01b0390911681526020015b60405180910390f35b606761101081565b60676002600160a01b0381565b60a161520881565b604051908152602001607b565b60a1620249f081565b60676120308156fea2646970667358221220ea2a2e8352aa8e823689bf6e65bc61f11b85e23cf28c8a87eafb08a08a8fce8c64736f6c63430008110033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b5060043610605a5760003560e01c8063284017f514605f5780633b878c2214608457806351351d5314608c578063947287cf14609957806397e5230d1460ae578063e0563ab11460b7575b600080fd5b606761202081565b6040516001600160a01b0390911681526020015b60405180910390f35b606761101081565b60676002600160a01b0381565b60a161520881565b604051908152602001607b565b60a1620249f081565b60676120308156fea2646970667358221220ea2a2e8352aa8e823689bf6e65bc61f11b85e23cf28c8a87eafb08a08a8fce8c64736f6c63430008110033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
