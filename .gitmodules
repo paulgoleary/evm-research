@@ -1,0 +1,6 @@
+[submodule "pol-token"]
+	path = pol-token
+	url = https://github.com/0xPolygon/pol-token
+[submodule "zkevm-contracts"]
+	path = zkevm-contracts
+	url = https://github.com/0xPolygonHermez/zkevm-contracts.git

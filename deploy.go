@@ -27,11 +27,27 @@ func getBuildArtifact(name string) (art *compiler.Artifact, err error) {
 	}
 	var jsonBytes []byte
 	if jsonBytes, err = os.ReadFile(filepath.Join("build/contracts", name)); err != nil {
-		return
+		if jsonBytes, err = os.ReadFile(name); err != nil {
+			return
+		}
 	}
+
 	var jart jsonArtifact
 	if err = json.Unmarshal(jsonBytes, &jart); err != nil {
-		return
+		var jany map[string]any
+		if err = json.Unmarshal(jsonBytes, &jany); err != nil {
+			return
+		}
+		if objByteCode, ok := jany["bytecode"].(map[string]any); ok {
+			if jart.Bytecode, ok = objByteCode["object"].(string); !ok {
+				return // just return error from above ...?
+			}
+		}
+
+		jart.Abi, err = json.Marshal(jany["abi"])
+		if err != nil {
+			return
+		}
 	}
 
 	bc := jart.Bytecode
