@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	abci "github.com/tendermint/tendermint/abci/types"
 	logger "github.com/tendermint/tendermint/libs/log"
 	httpClient "github.com/tendermint/tendermint/rpc/client"
 	tmTypes "github.com/tendermint/tendermint/types"
@@ -57,6 +58,52 @@ func GetBlockWithClient(client *httpClient.HTTP, height int64) (*tmTypes.Block, 
 			case tmTypes.EventDataNewBlock:
 				if t.Block.Height == height {
 					return t.Block, nil
+				}
+			default:
+				return nil, errors.New("timed out waiting for event")
+			}
+		case <-c.Done():
+			return nil, errors.New("timed out waiting for event")
+		}
+	}
+}
+
+// GetBeginBlockEvents get block through per height
+func GetBeginBlockEvents(client *httpClient.HTTP, height int64) ([]abci.Event, error) {
+	c, cancel := context.WithTimeout(context.Background(), CommitTimeout)
+	defer cancel()
+
+	// get block using client
+	blockResults, err := client.BlockResults(&height)
+	if err == nil && blockResults != nil {
+		return blockResults.Results.BeginBlock.GetEvents(), nil
+	}
+
+	// subscriber
+	subscriber := fmt.Sprintf("new-block-%v", height)
+
+	// query for event
+	query := tmTypes.QueryForEvent(tmTypes.EventNewBlock).String()
+
+	// register for the next event of this type
+	eventCh, err := client.Subscribe(c, subscriber, query)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to subscribe")
+	}
+
+	// unsubscribe query
+	defer func() {
+		_ = client.Unsubscribe(c, subscriber, query)
+	}()
+
+	for {
+		select {
+		case event := <-eventCh:
+			eventData := event.Data
+			switch t := eventData.(type) {
+			case tmTypes.EventDataNewBlock:
+				if t.Block.Height == height {
+					return t.ResultBeginBlock.GetEvents(), nil
 				}
 			default:
 				return nil, errors.New("timed out waiting for event")
