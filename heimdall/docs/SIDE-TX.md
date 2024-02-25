@@ -1,0 +1,167 @@
+Both CHECKPOINTS and MILESTONES are processed as transactions.
+
+If you have the transaction hash, the data can be retrieved directly from the API:
+
+https://heimdall-api-amoy.polygon.technology/txs/2e65d38c422e31f220b05fbc24328a77d034c1a9a099c57ff90693ded8579614
+
+```json
+{
+   "height":"0",
+   "result":{
+      "height":"1588003",
+      "txhash":"2E65D38C422E31F220B05FBC24328A77D034C1A9A099C57FF90693DED8579614",
+      "raw_log":"[{\"msg_index\":0,\"success\":true,\"log\":\"\",\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"milestone\"}]},{\"type\":\"milestone\",\"attributes\":[{\"key\":\"module\",\"value\":\"checkpoint\"},{\"key\":\"proposer\",\"value\":\"0x4ad84f7014b7b44f723f284a85b1662337971439\"},{\"key\":\"start-block\",\"value\":\"3887749\"},{\"key\":\"end-block\",\"value\":\"3887762\"},{\"key\":\"hash\",\"value\":\"0x6f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e\"}]}]}]",
+      "logs":[
+         {
+            "msg_index":0,
+            "success":true,
+            "log":"",
+            "events":[
+               {
+                  "type":"message",
+                  "attributes":[
+                     {
+                        "key":"action",
+                        "value":"milestone"
+                     }
+                  ]
+               },
+               {
+                  "type":"milestone",
+                  "attributes":[
+                     {
+                        "key":"module",
+                        "value":"checkpoint"
+                     },
+                     {
+                        "key":"proposer",
+                        "value":"0x4ad84f7014b7b44f723f284a85b1662337971439"
+                     },
+                     {
+                        "key":"start-block",
+                        "value":"3887749"
+                     },
+                     {
+                        "key":"end-block",
+                        "value":"3887762"
+                     },
+                     {
+                        "key":"hash",
+                        "value":"0x6f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e"
+                     }
+                  ]
+               }
+            ]
+         }
+      ],
+      "gas_wanted":"1000000",
+      "gas_used":"89730",
+      "tx":{
+         "type":"auth/StdTx",
+         "value":{
+            "msg":{
+               "type":"checkpoint/MsgMilestone",
+               "value":{
+                  "proposer":"0x4ad84f7014b7b44f723f284a85b1662337971439",
+                  "start_block":"3887749",
+                  "end_block":"3887762",
+                  "hash":"0x6f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e",
+                  "bor_chain_id":"80002",
+                  "milestone_id":"246ae205-2b01-416a-b889-b2fcac3ece81 - 0x0c425f5a8bbf181a547dafdf5eb156135626728e"
+               }
+            },
+            "signature":"0x78b04b6483ca70935716354230ececa07fc19c74d173fd889b00b6640dc108b806fdaa4fedc9512dbfdc22ee678e4e6ed37df79902e59fcb0118da485169cb2c01",
+            "memo":""
+         }
+      },
+      "timestamp":"2024-02-24T19:17:01Z",
+      "events":[
+         {
+            "type":"message",
+            "attributes":[
+               {
+                  "key":"action",
+                  "value":"milestone"
+               }
+            ]
+         },
+         {
+            "type":"milestone",
+            "attributes":[
+               {
+                  "key":"module",
+                  "value":"checkpoint"
+               },
+               {
+                  "key":"proposer",
+                  "value":"0x4ad84f7014b7b44f723f284a85b1662337971439"
+               },
+               {
+                  "key":"start-block",
+                  "value":"3887749"
+               },
+               {
+                  "key":"end-block",
+                  "value":"3887762"
+               },
+               {
+                  "key":"hash",
+                  "value":"0x6f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e"
+               }
+            ]
+         }
+      ]
+   }
+}
+```
+
+The signatures and singed data are handled as a 'side transaction'. That data is also directly available through an API:
+
+https://heimdall-api-amoy.polygon.technology/txs/2e65d38c422e31f220b05fbc24328a77d034c1a9a099c57ff90693ded8579614/side-tx
+
+```json
+{
+   "height":"0",
+   "result":{
+      "sigs":[
+         [
+            "87634660013974770327211864593316070451005807442323408443513076666432626955577",
+            "167512227092661885353102637259066450891707584642954922349296928407301359075",
+            "27"
+         ],
+         [
+            "100327487109994175236373410210806309462329606114300184196920536939764417977244",
+            "11536948333897140569135534945382785678770764248215354685385669066205752880153",
+            "28"
+         ],
+         [
+            "8772166466000672411966806714637753235003560218601242286766786992450973728349",
+            "2165060145599857749468246029781067992155823910902906137325371927246330224156",
+            "28"
+         ],
+         [
+            "8503688494647820460762116781159034082325910599210771009499881890368474948660",
+            "10273208031198779619835356466747552739912132381838155783974845526527101084199",
+            "27"
+         ],
+         [
+            "30424826992391854210215724013717119204467973651987041413638655904146633981520",
+            "27521860681627777579277262886648294841036376029332066615937796498217406177148",
+            "27"
+         ],
+         [
+            "106897718328805519320572381154501479473864997226638706374607881977502368473144",
+            "44034087443020828790571866268711087775687764161561484970859138415761858207998",
+            "28"
+         ],
+         [
+            "23044378427045860890530188866899984225278114234148597567447673278142096486746",
+            "26319485719283866582610604942156360301111383190380228198983609961696024909417",
+            "28"
+         ]
+      ],
+      "tx":"ea01f0625dee0aa001d2cb3e660a144ad84f7014b7b44f723f284a85b16623379714391085a5ed011892a5ed0122206f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e2a053830303032325132343661653230352d326230312d343136612d623838392d623266636163336563653831202d20307830633432356635613862626631383161353437646166646635656231353631333536323637323865124178b04b6483ca70935716354230ececa07fc19c74d173fd889b00b6640dc108b806fdaa4fedc9512dbfdc22ee678e4e6ed37df79902e59fcb0118da485169cb2c01",
+      "data":"0000000000000000000000004ad84f7014b7b44f723f284a85b166233797143900000000000000000000000000000000000000000000000000000000003b528500000000000000000000000000000000000000000000000000000000003b52926f73bdeda24c8d6b978628e10c425f5a8bbf181a547dafdf5eb156135626728e00000000000000000000000000000000000000000000000000000000000138820000000000000000000000000000000000000000000000000000000000000000"
+   }
+}
+```
