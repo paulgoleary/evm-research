@@ -211,7 +211,7 @@ func packSig(r, s, v *big.Int) []byte {
 	copy(b[:32], r32[:])
 	s32 := convertTo32(s.Bytes())
 	copy(b[32:64], s32[:])
-	copy(b[65:], v.Bytes()[0:1])
+	b[64] = byte(v.Uint64())
 	return b[:]
 }
 
@@ -259,9 +259,12 @@ func TestMilestoneSigs(t *testing.T) {
 		s, _ := new(big.Int).SetString(sig[1].(string), 10)
 		v, _ := new(big.Int).SetString(sig[2].(string), 10)
 
+		if v.Uint64() >= 27 {
+			v.Sub(v, big.NewInt(27))
+		}
+
 		signerAddr, err := wallet.EcrecoverMsg(sideTxResultWithData.GetBytes(), packSig(r, s, v))
 		require.NoError(t, err)
 		println(signerAddr.String())
-
 	}
 }
