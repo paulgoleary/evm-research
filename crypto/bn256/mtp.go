@@ -1,7 +1,7 @@
 package bn256
 
 import (
-	bn256 "github.com/paulgoleary/hub-research/crypto/bn256/cloudflare"
+	bn256 "github.com/paulgoleary/evm-research/crypto/bn256/cloudflare"
 	"math/big"
 )
 

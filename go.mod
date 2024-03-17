@@ -1,4 +1,4 @@
-module github.com/paulgoleary/hub-research
+module github.com/paulgoleary/evm-research
 
 go 1.21
 

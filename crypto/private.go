@@ -1,8 +1,8 @@
 package crypto
 
 import (
-	"github.com/paulgoleary/hub-research/crypto/common"
-	ctypes "github.com/paulgoleary/hub-research/crypto/types"
+	"github.com/paulgoleary/evm-research/crypto/common"
+	ctypes "github.com/paulgoleary/evm-research/crypto/types"
 )
 
 type PrivateKey struct {

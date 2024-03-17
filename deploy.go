@@ -1,10 +1,10 @@
-package hub_research
+package evm_research
 
 import (
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/paulgoleary/hub-research/crypto"
+	"github.com/paulgoleary/evm-research/crypto"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/abi"
 	"github.com/umbracle/ethgo/compiler"

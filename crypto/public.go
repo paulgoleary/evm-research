@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"encoding/json"
-	ctypes "github.com/paulgoleary/hub-research/crypto/types"
+	ctypes "github.com/paulgoleary/evm-research/crypto/types"
 )
 
 // PublicKey represents bls public key

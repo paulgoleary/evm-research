@@ -1,7 +1,7 @@
-package hub_research
+package evm_research
 
 import (
-	"github.com/paulgoleary/hub-research/crypto"
+	"github.com/paulgoleary/evm-research/crypto"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/jsonrpc"

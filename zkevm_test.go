@@ -1,10 +1,10 @@
-package hub_research
+package evm_research
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/paulgoleary/hub-research/crypto"
+	"github.com/paulgoleary/evm-research/crypto"
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/abi"
@@ -294,7 +294,7 @@ func TestZKEVMVerify(t *testing.T) {
 		oldStateRoot[:],
 		oldAccInputHash[:],
 		padUint64(initNumBatch),
-		encodeUint64("1422"),                                                                  // chainID
+		encodeUint64("1422"), // chainID
 		encodeBytesString("48bca36616b63348fc0cc17cfc12cef282f35039449f2cd91805e31795ff134f"), // newStateRoot
 		newAccInputHash[:],
 		encodeBytesString("cc5ca5d55023dc458cba48bb094921fc98c3ac6b2bceffef19594c7ccb1974de"), // newLocalExitRoot

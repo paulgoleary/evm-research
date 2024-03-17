@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
-	bn256 "github.com/paulgoleary/hub-research/crypto/bn256/cloudflare"
-	"github.com/paulgoleary/hub-research/crypto/common"
-	ctypes "github.com/paulgoleary/hub-research/crypto/types"
+	bn256 "github.com/paulgoleary/evm-research/crypto/bn256/cloudflare"
+	"github.com/paulgoleary/evm-research/crypto/common"
+	ctypes "github.com/paulgoleary/evm-research/crypto/types"
 	"math/big"
 )
 

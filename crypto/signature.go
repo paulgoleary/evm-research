@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"errors"
-	ctypes "github.com/paulgoleary/hub-research/crypto/types"
+	ctypes "github.com/paulgoleary/evm-research/crypto/types"
 )
 
 // Signature represents bls signature which is point on the curve

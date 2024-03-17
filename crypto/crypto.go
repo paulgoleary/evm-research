@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/paulgoleary/hub-research/crypto/bn256"
+	"github.com/paulgoleary/evm-research/crypto/bn256"
 	"github.com/umbracle/ethgo"
 	"math/big"
 )

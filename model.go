@@ -1,4 +1,4 @@
-package hub_research
+package evm_research
 
 import (
 	"github.com/mitchellh/mapstructure"
