@@ -115,7 +115,7 @@ https://heimdall-api-amoy.polygon.technology/txs/2e65d38c422e31f220b05fbc24328a7
 }
 ```
 
-The signatures and singed data are handled as a 'side transaction'. That data is also directly available through an API:
+The signatures and signed data are handled as a 'side transaction'. That data is also directly available through an API:
 
 https://heimdall-api-amoy.polygon.technology/txs/2e65d38c422e31f220b05fbc24328a77d034c1a9a099c57ff90693ded8579614/side-tx
 
