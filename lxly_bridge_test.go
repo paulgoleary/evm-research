@@ -38,8 +38,29 @@ func TestBridgeBasics(t *testing.T) {
 	}
 
 	ll, err := ec.Eth().GetLogs(&filter)
-
 	require.NoError(t, err)
+
+	// TODO: this is an event we want ...
+	//    event BridgeEvent(
+	//        uint8 leafType,
+	//        uint32 originNetwork,
+	//        address originAddress,
+	//        uint32 destinationNetwork,
+	//        address destinationAddress,
+	//        uint256 amount,
+	//        bytes metadata,
+	//        uint32 depositCount
+	//    );
+
+	// TODO: example of how to set up event parsing ...
+	// event Transfer(address indexed from, address indexed to, uint256 value);
+	//	var transferEvent = abi.MustNewEvent(`event Transfer(
+	//	address indexed from,
+	//	address indexed to,
+	//	uint256 value
+	//)`)
+
+	// TODO: look here for examples / ideas: https://github.com/paulgoleary/local-luv-proto/blob/6a6c841a948c6c9094340dc78497fbdff2351986/backend/erc4337/concierge.go#L15
 
 	for i := 0; i < len(ll); i++ {
 		fmt.Println("log", i+1)
