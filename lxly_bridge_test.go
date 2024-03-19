@@ -1,11 +1,13 @@
 package evm_research
 
 import (
+	"fmt"
+	"os"
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"github.com/umbracle/ethgo"
 	"github.com/umbracle/ethgo/jsonrpc"
-	"os"
-	"testing"
 )
 
 var lxlyEVMBridgeEthMainnetAddr = ethgo.HexToAddress("0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe")
@@ -36,7 +38,33 @@ func TestBridgeBasics(t *testing.T) {
 	}
 
 	ll, err := ec.Eth().GetLogs(&filter)
-	require.NoError(t, err)
-	_ = ll
 
+	require.NoError(t, err)
+
+	for i := 0; i < len(ll); i++ {
+		fmt.Println("log", i+1)
+		log := ll[i]
+
+		tx := log.TransactionHash.String()
+		fmt.Println("tx:", tx)
+
+		address := log.Address.String()
+		fmt.Println("address:", address)
+
+		block := log.BlockHash.String()
+		fmt.Println("block:", block)
+
+		t := log.Topics
+
+		for j := 0; j < len(t); j++ {
+			block := t[j].String()
+			fmt.Printf("topic %d: %s\n", j+1, block)
+		}
+
+		data := ethgo.BytesToHash(log.Data)
+		fmt.Println("data:", data)
+
+	}
+
+	_ = ll
 }
