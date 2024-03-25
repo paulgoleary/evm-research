@@ -113,3 +113,11 @@ func deployArtifact(ec *jsonrpc.Client, name string, withKey ethgo.Key, args []i
 
 	return
 }
+
+func LoadABI(name string) (loaded *abi.ABI, err error) {
+	var art *compiler.Artifact
+	if art, err = getBuildArtifact(name); err != nil {
+		return
+	}
+	return abi.NewABI(art.Abi)
+}
