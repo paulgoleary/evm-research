@@ -39,20 +39,32 @@ func generateZeroHashes(height uint8) [][KeyLen]byte {
 	return zeroHashes
 }
 
-func calculateRoot(leafHash common.Hash, smtProof [][KeyLen]byte, index uint, height uint8) common.Hash {
-	var node [KeyLen]byte
-	copy(node[:], leafHash[:])
-
-	// Check merkle proof
+func calculateRoot(frontier [][KeyLen]byte, index uint, height uint8) common.Hash {
+	var node, currentZero [KeyLen]byte
 	var h uint8
 	for h = 0; h < height; h++ {
 		if ((index >> h) & 1) == 1 {
-			node = Hash(smtProof[h], node)
+			node = Hash(frontier[h], node)
 		} else {
-			node = Hash(node, smtProof[h])
+			node = Hash(node, currentZero)
 		}
+		currentZero = Hash(currentZero, currentZero)
 	}
 	return common.BytesToHash(node[:])
+}
+
+func addLeaf(leafHash common.Hash, frontier [][KeyLen]byte, index uint, height uint8) {
+	var node [KeyLen]byte
+	copy(node[:], leafHash[:])
+	var h uint8
+	for h = 0; h < height; h++ {
+		if ((index >> h) & 1) == 1 {
+			copy(frontier[h][:], node[:])
+			return
+		}
+		node = Hash(frontier[h], node)
+	}
+	panic("should not get here")
 }
 
 type Deposit struct {

@@ -1,6 +1,7 @@
 package evm_research
 
 import (
+	"bytes"
 	"cmp"
 	"encoding/base64"
 	"encoding/binary"
@@ -83,6 +84,14 @@ var (
         address destinationAddress,
         uint256 amount
 	)`)
+
+	// Old Bridge events
+	verifyBatchesEtrogSignatureHash = ethgo.Hash(ethgo.Keccak256([]byte("VerifyBatches(uint64,bytes32,address)")))
+	verifyBatchesEtrogEvent         = abi.MustNewEvent(`event VerifyBatches(
+        uint64 indexed numBatch,
+        bytes32 stateRoot,
+        address indexed aggregator
+    )`)
 )
 
 const (
@@ -91,23 +100,26 @@ const (
 	BridgeEventDeposit
 	BridgeEventV2Claim
 	BridgeEventV1Claim
+	BridgeEventVerifyBatchesEtrog
 )
 
 var (
 	bridgeEventTypeMap = map[ethgo.Hash]int{
-		l1InfoTreeEvent.ID(): BridgeEventL1InfoTree,
-		v1GEREvent.ID():      BridgeEventV1GER,
-		depositEvent.ID():    BridgeEventDeposit,
-		claimEvent.ID():      BridgeEventV2Claim,
-		oldClaimEvent.ID():   BridgeEventV1Claim,
+		l1InfoTreeEvent.ID():         BridgeEventL1InfoTree,
+		v1GEREvent.ID():              BridgeEventV1GER,
+		depositEvent.ID():            BridgeEventDeposit,
+		claimEvent.ID():              BridgeEventV2Claim,
+		oldClaimEvent.ID():           BridgeEventV1Claim,
+		verifyBatchesEtrogEvent.ID(): BridgeEventVerifyBatchesEtrog,
 	}
 
 	bridgeEventParseMap = map[int]func(log *ethgo.Log) (map[string]interface{}, error){
-		BridgeEventL1InfoTree: l1InfoTreeEvent.ParseLog,
-		BridgeEventV1GER:      v1GEREvent.ParseLog,
-		BridgeEventDeposit:    depositEvent.ParseLog,
-		BridgeEventV2Claim:    claimEvent.ParseLog,
-		BridgeEventV1Claim:    oldClaimEvent.ParseLog,
+		BridgeEventL1InfoTree:         l1InfoTreeEvent.ParseLog,
+		BridgeEventV1GER:              v1GEREvent.ParseLog,
+		BridgeEventDeposit:            depositEvent.ParseLog,
+		BridgeEventV2Claim:            claimEvent.ParseLog,
+		BridgeEventV1Claim:            oldClaimEvent.ParseLog,
+		BridgeEventVerifyBatchesEtrog: verifyBatchesEtrogEvent.ParseLog,
 	}
 )
 
@@ -139,23 +151,41 @@ type BridgeEvent struct {
 	Data             map[string]interface{} `json:"event_data"`
 }
 
+func mustToInt64(jn json.Number) int64 {
+	if n, err := jn.Int64(); err != nil {
+		panic("should not fail")
+	} else {
+		return n
+	}
+}
+
+func mustToBigInt(jn json.Number) *big.Int {
+	ret := new(big.Int)
+	ret.SetString(jn.String(), 10)
+	return ret
+}
+
 func (be BridgeEvent) toDeposit() Deposit {
-	leafType := be.Data["leafType"].(float64)
-	originNetwork := be.Data["originNetwork"].(float64)
+	leafType := be.Data["leafType"].(json.Number)
+	originNetwork := be.Data["originNetwork"].(json.Number)
 	originAddress := be.Data["originAddress"].(string)
-	amount := be.Data["amount"].(float64)
-	destinationNetwork := be.Data["destinationNetwork"].(float64)
+	amount := be.Data["amount"].(json.Number)
+	destinationNetwork := be.Data["destinationNetwork"].(json.Number)
 	destinationAddress := be.Data["destinationAddress"].(string)
-	depositCount := be.Data["depositCount"].(float64)
+	depositCount := be.Data["depositCount"].(json.Number)
+	var metaBytes []byte
+	if maybeMeta, ok := be.Data["metadata"].(string); ok && len(maybeMeta) > 0 {
+		metaBytes, _ = base64.StdEncoding.DecodeString(maybeMeta)
+	}
 	dep := Deposit{
-		LeafType:           uint8(leafType),
-		OriginNetwork:      uint(originNetwork),
+		LeafType:           uint8(mustToInt64(leafType)),
+		OriginNetwork:      uint(mustToInt64(originNetwork)),
 		OriginAddress:      common.HexToAddress(originAddress),
-		Amount:             big.NewInt(int64(amount)),
-		DestinationNetwork: uint(destinationNetwork),
+		Amount:             mustToBigInt(amount),
+		DestinationNetwork: uint(mustToInt64(destinationNetwork)),
 		DestinationAddress: common.HexToAddress(destinationAddress),
-		DepositCount:       uint(depositCount),
-		Metadata:           nil,
+		DepositCount:       uint(mustToInt64(depositCount)),
+		Metadata:           metaBytes,
 	}
 	return dep
 }
@@ -167,6 +197,7 @@ func TestEventDefCompat(t *testing.T) {
 	require.Equal(t, depositEventSignatureHash.Bytes(), depositEvent.ID().Bytes())
 	require.Equal(t, claimEventSignatureHash.Bytes(), claimEvent.ID().Bytes())
 	require.Equal(t, oldClaimEventSignatureHash.Bytes(), oldClaimEvent.ID().Bytes())
+	require.Equal(t, verifyBatchesEtrogSignatureHash.Bytes(), verifyBatchesEtrogEvent.ID().Bytes())
 }
 
 func TestBridgeExtractEvents(t *testing.T) {
@@ -238,6 +269,8 @@ func decodeFile(filePath string) (bevs []BridgeEvent, err error) {
 	}
 
 	d := json.NewDecoder(f)
+	d.UseNumber()
+
 	cnt := 0
 	for {
 		var be BridgeEvent
@@ -256,28 +289,28 @@ func decodeFile(filePath string) (bevs []BridgeEvent, err error) {
 	return
 }
 
-func TestBridgeProcessEvents(t *testing.T) {
+func processEventsSorted(ndJsonPaths []string) (ret []BridgeEvent, err error) {
 
-	bevsV1, err := decodeFile("./bridge_events_10k.ndjson")
-	require.NoError(t, err)
+	for i := range ndJsonPaths {
+		var bevs []BridgeEvent
+		if bevs, err = decodeFile(ndJsonPaths[i]); err != nil {
+			return
+		}
+		ret = append(ret, bevs...)
+	}
 
-	bevV2, err := decodeFile("./bridge_events_v2_10k.ndjson")
-	require.NoError(t, err)
-
-	bevs := append(bevsV1, bevV2...)
-
-	sort.Slice(bevs, func(i, j int) bool {
-		switch cmp.Compare(bevs[i].BlockNumber, bevs[j].BlockNumber) {
+	sort.Slice(ret, func(i, j int) bool {
+		switch cmp.Compare(ret[i].BlockNumber, ret[j].BlockNumber) {
 		case -1:
 			return true
 		case 0:
 			{
-				switch cmp.Compare(bevs[i].TransactionIndex, bevs[j].TransactionIndex) {
+				switch cmp.Compare(ret[i].TransactionIndex, ret[j].TransactionIndex) {
 				case -1:
 					return true
 				case 0:
 					{
-						switch cmp.Compare(bevs[i].LogIndex, bevs[j].LogIndex) {
+						switch cmp.Compare(ret[i].LogIndex, ret[j].LogIndex) {
 						case -1:
 							return true
 						}
@@ -287,6 +320,14 @@ func TestBridgeProcessEvents(t *testing.T) {
 		}
 		return false
 	})
+
+	return
+}
+
+func TestBridgeProcessEvents(t *testing.T) {
+
+	bevs, err := processEventsSorted([]string{"./bridge_events_10k.ndjson", "./bridge_events_v2_10k.ndjson"})
+	require.NoError(t, err)
 
 	checkSort := sort.SliceIsSorted(bevs, func(i, j int) bool {
 		return bevs[i].BlockNumber < bevs[j].BlockNumber &&
@@ -311,25 +352,6 @@ func TestBridgeProcessEvents(t *testing.T) {
 	}
 	fmt.Printf("found %v deposits\n", depositCount+1)
 	fmt.Printf("last block found %v\n", bevs[len(bevs)-1].BlockNumber)
-
-	//// TODO: quick-and-dirty test!
-	//// MATCHED with Rust impl ...
-	//require.Equal(t, BridgeEventDeposit, int(bevs[0].EventType))
-	//dep := bevs[0].toDeposit()
-	//depHash := hashDeposit(&dep)
-	//require.Equal(t, "b7cd745b9fc33c6e233768f51f262865c8cdff188d4e63c16709e389c11d5cd8", hex.EncodeToString(depHash[:]))
-	//
-	//nodes := generateZeroHashes(32)
-	//rootHash := calculateRoot(depHash, nodes, 0, 32)
-	//require.Equal(t, "927e6ceecb5b20935d26fbfc57002a59298b6e82640e8d652809e06854d7a81f", hex.EncodeToString(rootHash[:]))
-	//
-	//require.Equal(t, BridgeEventV1GER, int(bevs[1].EventType))
-	//bevsHash := bevs[1].Data["mainnetExitRoot"].([]interface{})
-	//// TODO: obv this needs to be cleaned up :)
-	//require.True(t, byte(bevsHash[0].(float64)) == rootHash[0])
-	//require.True(t, byte(bevsHash[1].(float64)) == rootHash[1])
-	//require.True(t, byte(bevsHash[2].(float64)) == rootHash[2])
-	//require.True(t, byte(bevsHash[3].(float64)) == rootHash[3])
 
 	originAddrMap := make(map[string]bool)
 	for i := range bevs {
@@ -430,4 +452,85 @@ func TestDeriveL2TokenAddr(t *testing.T) {
 
 	deriveAddr := CreateAddress2(lxlyEVMBridgeEthMainnetAddr, salt, ethgo.Keccak256(append(initByteCodeBytes, metaBytes...)))
 	require.Equal(t, "0x5D8cfF95D7A57c0BF50B30b43c7CC0D52825D4a9", deriveAddr.String())
+}
+
+func TestRollupManagerEvents(t *testing.T) {
+	ec, err := jsonrpc.NewClient(os.Getenv("ETH_URL"))
+	require.NoError(t, err)
+
+	// func loadArtifact(ec *jsonrpc.Client, name string, withKey ethgo.Key, addr ethgo.Address) (loaded *contract.Contract, err error) {
+	// rollup manager mainnet
+	// rollupManager, err := loadArtifact(ec, "", nil, ethgo.HexToAddress("0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2"))
+
+	fromBlockNum := ethgo.BlockNumber(19592227 - 2000) // tbd !!!
+
+	toBlockNum := fromBlockNum + 1999
+
+	filter := ethgo.LogFilter{
+		// Address:   []ethgo.Address{lxlyEVMBridgeEthMainnetAddr, lxlyEVMGlobalExitRootAddr},
+		// Topics:    topics,
+		BlockHash: nil,
+		From:      &fromBlockNum,
+		To:        &toBlockNum,
+	}
+
+	filter.Address = []ethgo.Address{ethgo.HexToAddress("0x519E42c24163192Dca44CD3fBDCEBF6be9130987")}
+	// filter.Address = []ethgo.Address{ethgo.HexToAddress("0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2")}
+	llRollupManager, err := ec.Eth().GetLogs(&filter)
+	require.NoError(t, err)
+
+	if len(llRollupManager) > 0 {
+		for _, l := range llRollupManager {
+			// println(l.Topics[0].String())
+			if maybeRollupEvent := maybeFromLog(l); maybeRollupEvent != nil {
+				json, err := json.Marshal(maybeRollupEvent)
+				require.NoError(t, err)
+				println(string(json))
+
+				rootData := maybeRollupEvent.Data["stateRoot"].([32]uint8)
+				rootHash := ethgo.Hash(rootData)
+				println(rootHash.String())
+				println()
+			}
+		}
+	}
+}
+
+func TestLERCalc(t *testing.T) {
+	bevs, err := processEventsSorted([]string{"./bridge_events_10k.ndjson"})
+	require.NoError(t, err)
+
+	const treeHeight = 32
+	frontier := make([][KeyLen]byte, treeHeight)
+
+	arrayToHash := func(da []interface{}) ethgo.Hash {
+		var h [32]byte
+		for i := range da {
+			h[i] = byte(mustToInt64(da[i].(json.Number)))
+		}
+		return ethgo.Hash(h)
+	}
+
+	var depositCount uint
+	for i := range bevs {
+		switch bevs[i].EventType {
+		case BridgeEventDeposit:
+			{
+				dep := bevs[i].toDeposit()
+				depHash := hashDeposit(&dep)
+				require.Equal(t, depositCount, dep.DepositCount)
+				depositCount = dep.DepositCount + 1
+				addLeaf(depHash, frontier, depositCount, treeHeight)
+			}
+		case BridgeEventV1GER:
+			{
+				rootHash := calculateRoot(frontier, depositCount, treeHeight)
+				bevsHash := bevs[i].Data["mainnetExitRoot"].([]interface{})
+				if bytes.Compare(rootHash.Bytes(), arrayToHash(bevsHash).Bytes()) != 0 {
+					require.Equal(t, rootHash.Bytes(), arrayToHash(bevsHash).Bytes())
+				}
+			}
+		default: // TODO: claim event?
+		}
+	}
 }
