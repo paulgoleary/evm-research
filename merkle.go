@@ -2,6 +2,7 @@ package evm_research
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/umbracle/ethgo"
 	"golang.org/x/crypto/sha3"
@@ -68,20 +69,19 @@ func addLeaf(leafHash common.Hash, frontier [][KeyLen]byte, index uint, height u
 }
 
 type Deposit struct {
-	LeafType           uint8          `mapstructure:"leafType"`
-	OriginNetwork      uint           `mapstructure:"originNetwork"`
-	OriginAddress      common.Address `mapstructure:"originAddress"`
-	Amount             *big.Int       `mapstructure:"amount"`
-	DestinationNetwork uint           `mapstructure:"destinationNetwork"`
-	DestinationAddress common.Address `mapstructure:"destinationAddress"`
-	DepositCount       uint           `mapstructure:"depositCount"`
-	//BlockID              uint64         `json:"removed"`
-	//BlockNumber          uint64         `json:"removed"`
-	//OriginNetwork        uint           `json:"removed"`
-	//TxHash   common.Hash `json:"removed"`
-	Metadata []byte `mapstructure:"metadata"`
-	// it is only used for the bridge service
-	//ReadyForClaim bool
+	LeafType           uint8          `json:"leafType"`
+	OriginNetwork      uint           `json:"originNetwork"`
+	OriginAddress      common.Address `json:"originAddress"`
+	Amount             *big.Int       `json:"amount"`
+	DestinationNetwork uint           `json:"destinationNetwork"`
+	DestinationAddress common.Address `json:"destinationAddress"`
+	DepositCount       uint           `json:"depositCount"`
+	Metadata           []byte         `json:"metadata"`
+}
+
+func (d *Deposit) JSON() string {
+	jsonBytes, _ := json.Marshal(d)
+	return string(jsonBytes)
 }
 
 func hashDeposit(deposit *Deposit) [KeyLen]byte {

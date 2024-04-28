@@ -23,12 +23,14 @@ import (
 
 var lxlyEVMBridgeEthMainnetAddr = ethgo.HexToAddress("0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe")
 var lxlyEVMGlobalExitRootAddr = ethgo.HexToAddress("0x580bda1e7A0CFAe92Fa7F6c20A3794F169CE3CFb")
+var lxlyEVMRollupManagerAddr = ethgo.HexToAddress("0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2")
 var lxlyEVMBridgeDeployBlock = 16896718
 var lxlyEVMV2UpgradeBlock = 19100076
 var firstDepositEventBlock = 16898815
 
-// var startBlock = lxlyEVMV2UpgradeBlock
-var startBlock = 0 // for L2 / zkEVM
+var startBlock = lxlyEVMBridgeDeployBlock
+
+// var startBlock = 0 // for L2 / zkEVM
 
 var (
 	// New Ger event
@@ -85,9 +87,15 @@ var (
         uint256 amount
 	)`)
 
-	// Old Bridge events
 	verifyBatchesEtrogSignatureHash = ethgo.Hash(ethgo.Keccak256([]byte("VerifyBatches(uint64,bytes32,address)")))
 	verifyBatchesEtrogEvent         = abi.MustNewEvent(`event VerifyBatches(
+        uint64 indexed numBatch,
+        bytes32 stateRoot,
+        address indexed aggregator
+    )`)
+
+	verifyBatchesTrustedSequencerHash  = ethgo.Hash(ethgo.Keccak256([]byte("VerifyBatchesTrustedAggregator(uint64,bytes32,address)")))
+	verifyBatchesTrustedSequencerEvent = abi.MustNewEvent(`event VerifyBatchesTrustedAggregator(
         uint64 indexed numBatch,
         bytes32 stateRoot,
         address indexed aggregator
@@ -101,25 +109,28 @@ const (
 	BridgeEventV2Claim
 	BridgeEventV1Claim
 	BridgeEventVerifyBatchesEtrog
+	BridgeEventVerifyTrustedSequencer
 )
 
 var (
 	bridgeEventTypeMap = map[ethgo.Hash]int{
-		l1InfoTreeEvent.ID():         BridgeEventL1InfoTree,
-		v1GEREvent.ID():              BridgeEventV1GER,
-		depositEvent.ID():            BridgeEventDeposit,
-		claimEvent.ID():              BridgeEventV2Claim,
-		oldClaimEvent.ID():           BridgeEventV1Claim,
-		verifyBatchesEtrogEvent.ID(): BridgeEventVerifyBatchesEtrog,
+		l1InfoTreeEvent.ID():                    BridgeEventL1InfoTree,
+		v1GEREvent.ID():                         BridgeEventV1GER,
+		depositEvent.ID():                       BridgeEventDeposit,
+		claimEvent.ID():                         BridgeEventV2Claim,
+		oldClaimEvent.ID():                      BridgeEventV1Claim,
+		verifyBatchesEtrogEvent.ID():            BridgeEventVerifyBatchesEtrog,
+		verifyBatchesTrustedSequencerEvent.ID(): BridgeEventVerifyTrustedSequencer,
 	}
 
 	bridgeEventParseMap = map[int]func(log *ethgo.Log) (map[string]interface{}, error){
-		BridgeEventL1InfoTree:         l1InfoTreeEvent.ParseLog,
-		BridgeEventV1GER:              v1GEREvent.ParseLog,
-		BridgeEventDeposit:            depositEvent.ParseLog,
-		BridgeEventV2Claim:            claimEvent.ParseLog,
-		BridgeEventV1Claim:            oldClaimEvent.ParseLog,
-		BridgeEventVerifyBatchesEtrog: verifyBatchesEtrogEvent.ParseLog,
+		BridgeEventL1InfoTree:             l1InfoTreeEvent.ParseLog,
+		BridgeEventV1GER:                  v1GEREvent.ParseLog,
+		BridgeEventDeposit:                depositEvent.ParseLog,
+		BridgeEventV2Claim:                claimEvent.ParseLog,
+		BridgeEventV1Claim:                oldClaimEvent.ParseLog,
+		BridgeEventVerifyBatchesEtrog:     verifyBatchesEtrogEvent.ParseLog,
+		BridgeEventVerifyTrustedSequencer: verifyBatchesTrustedSequencerEvent.ParseLog,
 	}
 )
 
@@ -198,6 +209,7 @@ func TestEventDefCompat(t *testing.T) {
 	require.Equal(t, claimEventSignatureHash.Bytes(), claimEvent.ID().Bytes())
 	require.Equal(t, oldClaimEventSignatureHash.Bytes(), oldClaimEvent.ID().Bytes())
 	require.Equal(t, verifyBatchesEtrogSignatureHash.Bytes(), verifyBatchesEtrogEvent.ID().Bytes())
+	require.Equal(t, verifyBatchesTrustedSequencerHash.Bytes(), verifyBatchesTrustedSequencerEvent.ID().Bytes())
 }
 
 func TestBridgeExtractEvents(t *testing.T) {
@@ -207,7 +219,7 @@ func TestBridgeExtractEvents(t *testing.T) {
 
 	fromBlockNum := ethgo.BlockNumber(startBlock)
 
-	f, err := os.Create("./l2_bridge_events.ndjson")
+	f, err := os.Create("./bridge_events_20k.ndjson")
 	require.NoError(t, err)
 	defer f.Close()
 
@@ -231,12 +243,16 @@ func TestBridgeExtractEvents(t *testing.T) {
 		llBridge, err := ec.Eth().GetLogs(&filter)
 		require.NoError(t, err)
 
-		//filter.Address = []ethgo.Address{lxlyEVMGlobalExitRootAddr}
-		//llGER, err := ec.Eth().GetLogs(&filter)
-		//require.NoError(t, err)
+		filter.Address = []ethgo.Address{lxlyEVMGlobalExitRootAddr}
+		llGER, err := ec.Eth().GetLogs(&filter)
+		require.NoError(t, err)
 
-		// ll := append(llBridge, llGER...)
-		ll := llBridge
+		filter.Address = []ethgo.Address{lxlyEVMRollupManagerAddr}
+		llRM, err := ec.Eth().GetLogs(&filter)
+		require.NoError(t, err)
+
+		ll := append(llBridge, llGER...)
+		ll = append(ll, llRM...)
 
 		fmt.Printf("queried blocks %v to %v, %v events\n", int(fromBlockNum), int(toBlockNum), len(ll))
 
@@ -252,7 +268,7 @@ func TestBridgeExtractEvents(t *testing.T) {
 			}
 		}
 
-		if cntEvent >= 10_000 {
+		if cntEvent >= 20_000 {
 			break
 		}
 
@@ -262,7 +278,7 @@ func TestBridgeExtractEvents(t *testing.T) {
 	fmt.Printf("type count summary: 0: %v, 1: %v, 2: %v, 3: %v, 4: %v\n", cntMap[0], cntMap[1], cntMap[2], cntMap[3], cntMap[4])
 }
 
-func decodeFile(filePath string) (bevs []BridgeEvent, err error) {
+func decodeBridgeEventFile(filePath string) (bevs []BridgeEvent, err error) {
 	var f *os.File
 	if f, err = os.Open(filePath); err != nil {
 		return
@@ -293,7 +309,7 @@ func processEventsSorted(ndJsonPaths []string) (ret []BridgeEvent, err error) {
 
 	for i := range ndJsonPaths {
 		var bevs []BridgeEvent
-		if bevs, err = decodeFile(ndJsonPaths[i]); err != nil {
+		if bevs, err = decodeBridgeEventFile(ndJsonPaths[i]); err != nil {
 			return
 		}
 		ret = append(ret, bevs...)
@@ -497,7 +513,7 @@ func TestRollupManagerEvents(t *testing.T) {
 }
 
 func TestLERCalc(t *testing.T) {
-	bevs, err := processEventsSorted([]string{"./bridge_events_10k.ndjson"})
+	bevs, err := processEventsSorted([]string{"./bridge_events_20k.ndjson"})
 	require.NoError(t, err)
 
 	const treeHeight = 32
@@ -512,6 +528,10 @@ func TestLERCalc(t *testing.T) {
 	}
 
 	var depositCount uint
+
+	var batchDeposits []Deposit
+	batchFrontier := make([][KeyLen]byte, treeHeight)
+
 	for i := range bevs {
 		switch bevs[i].EventType {
 		case BridgeEventDeposit:
@@ -521,6 +541,7 @@ func TestLERCalc(t *testing.T) {
 				require.Equal(t, depositCount, dep.DepositCount)
 				depositCount = dep.DepositCount + 1
 				addLeaf(depHash, frontier, depositCount, treeHeight)
+				batchDeposits = append(batchDeposits, dep)
 			}
 		case BridgeEventV1GER:
 			{
@@ -530,7 +551,185 @@ func TestLERCalc(t *testing.T) {
 					require.Equal(t, rootHash.Bytes(), arrayToHash(bevsHash).Bytes())
 				}
 			}
+		case BridgeEventVerifyTrustedSequencer:
+			{
+				if len(batchDeposits) > 200 {
+					println(fmt.Sprintf("total deposits (leafs): %v", depositCount))
+					for i := range batchDeposits {
+						println(batchDeposits[i].JSON())
+					}
+					for i := range batchFrontier {
+						println(hex.EncodeToString(batchFrontier[i][:]))
+					}
+					rootHash := calculateRoot(frontier, depositCount, treeHeight)
+					println(fmt.Sprintf("expected batch (output) root: %v", hex.EncodeToString(rootHash.Bytes())))
+
+					println()
+				}
+				// need to emit current batch + start frontier
+				batchDeposits = batchDeposits[0:0] // reset batch deposits
+				copy(batchFrontier, frontier)      // capture current frontier
+			}
 		default: // TODO: claim event?
 		}
 	}
+}
+
+// pub struct TokenInfo {
+//    /// Network which the token originates from
+//    pub origin_network: NetworkId,
+//    /// The address of the token on the origin network
+//    pub origin_token_address: Address,
+//}
+
+type NetworkId uint32
+
+type TokenInfo struct {
+	OriginNetwork      NetworkId
+	OriginTokenAddress ethgo.Address
+}
+
+// pub struct AggregateDeposits(BTreeMap<NetworkId, BTreeMap<TokenInfo, U256>>);
+
+var (
+	TokenInfoETH = TokenInfo{
+		0,
+		ethgo.HexToAddress("0x0000000000000000000000000000000000000000"),
+	}
+	TokenInfoUSDC = TokenInfo{
+		0,
+		ethgo.HexToAddress("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+	}
+)
+
+type AggregateDeposits struct {
+	deps map[NetworkId]map[TokenInfo]*big.Int
+}
+
+func makeAggregateDeposits() *AggregateDeposits {
+	return &AggregateDeposits{
+		deps: map[NetworkId]map[TokenInfo]*big.Int{},
+	}
+}
+
+func (ad *AggregateDeposits) flattenTokens() map[TokenInfo]*big.Int {
+	lct := makeLocalCreditTree()
+	for _, v := range ad.deps {
+		lct.mergeTransfers(v)
+	}
+	return lct.bals
+}
+
+func (ad *AggregateDeposits) addDeposit(nid NetworkId, ti TokenInfo, bal *big.Int) {
+	if _, ok := ad.deps[nid]; !ok {
+		ad.deps[nid] = map[TokenInfo]*big.Int{}
+	}
+	if curr, ok := ad.deps[nid][ti]; !ok {
+		ad.deps[nid][ti] = bal
+	} else {
+		ad.deps[nid][ti] = bal.Add(bal, curr)
+	}
+}
+
+type LocalCreditTree struct {
+	bals map[TokenInfo]*big.Int
+}
+
+func makeLocalCreditTree() *LocalCreditTree {
+	return &LocalCreditTree{
+		bals: make(map[TokenInfo]*big.Int),
+	}
+}
+
+func (lct *LocalCreditTree) addCredit(ti TokenInfo, bal *big.Int) *LocalCreditTree {
+	if curr, ok := lct.bals[ti]; !ok {
+		lct.bals[ti] = bal
+	} else {
+		lct.bals[ti] = bal.Add(bal, curr)
+	}
+	return lct
+}
+
+func (lct *LocalCreditTree) mergeTransfers(deps map[TokenInfo]*big.Int) {
+	for k, v := range deps {
+		if bal, ok := lct.bals[k]; !ok {
+			lct.bals[k] = v
+		} else {
+			lct.bals[k] = bal.Add(bal, v)
+		}
+	}
+}
+
+// collateDeposits takes a map which records where new deposits were made and collates them into an aggregate tree by
+//
+//	where the deposit is 'routed' - i.e. target network
+func collateDeposits(fromDeps map[NetworkId]*AggregateDeposits) map[NetworkId]*LocalCreditTree {
+	ret := make(map[NetworkId]*LocalCreditTree)
+	for _, deps := range fromDeps {
+		for k, v := range deps.deps {
+			if _, ok := ret[k]; !ok {
+				ret[k] = &LocalCreditTree{bals: make(map[TokenInfo]*big.Int)}
+			}
+			ret[k].mergeTransfers(v)
+		}
+	}
+	return ret
+}
+
+// 'currentBalances' will be an off-chain data structure that records the current 'credit balances' on a given network.
+// . in the 'real' implementation it will need to be a cryptographically verified / committed data structure - e.g. an SMT
+// . the current root will also be an input to this stage and should be checked against the current structure.
+// 'outboundTransfers' will be the output data from the first (leaf) phase.
+// . this data needs to be verified in this stage as well - likely through verifying the proof of the first stage (?) in this proof
+// 'inboundTransfers' will be the output of the 2nd / intermediate phase - i.e. collation (?)
+// . this aggregates all the 'inbound' transfers to the network and will also need to be verified with an intermediate proof.
+func finalizeDepositProof(localId NetworkId, currentBalances *LocalCreditTree, outboundTransfers *AggregateDeposits, inboundTransfers *LocalCreditTree) (bool, *LocalCreditTree) {
+
+	if len(outboundTransfers.deps) > 0 && len(currentBalances.bals) == 0 {
+		return false, nil
+	}
+
+	// subtract outbound deposits from current local balance. if negative then fail.
+	for t, bal := range outboundTransfers.flattenTokens() {
+		currentBalances.bals[t].Sub(currentBalances.bals[t], bal)
+		if currentBalances.bals[t].Sign() == -1 {
+			return false, nil
+		}
+	}
+
+	// TODO: feels like we need different accounting for tokens when they're transferred back to their 'home' network.
+	//  they should not be treated like IOU's at that point - probably just taken out of the accounting ...?
+
+	// add inbound transfers (IOU's) to local credit balance ...
+	for t, bal := range inboundTransfers.bals {
+		if t.OriginNetwork == localId {
+			// not an 'IOU' - token is being 'redeemed' on 'home' network
+			continue
+		}
+		currentBalances.bals[t].Add(currentBalances.bals[t], bal)
+	}
+
+	return true, currentBalances
+}
+
+func TestAggregateDeposits(t *testing.T) {
+
+	aggDeps := map[NetworkId]*AggregateDeposits{0: makeAggregateDeposits(), 1: makeAggregateDeposits()}
+	// this represents a deposit on network 0 that is transferred to network 1
+	aggDeps[0].addDeposit(1, TokenInfoETH, big.NewInt(100))
+	aggDeps[0].addDeposit(1, TokenInfoUSDC, big.NewInt(1000))
+
+	// this represents a deposit on network 1 that is transferred to network 0
+	aggDeps[1].addDeposit(0, TokenInfoETH, big.NewInt(200))
+	aggDeps[1].addDeposit(0, TokenInfoUSDC, big.NewInt(2000))
+
+	collatedDeps := collateDeposits(aggDeps)
+	require.Equal(t, 2, len(collatedDeps))
+
+	// network 1 currently has a 100 ETH credit
+	lbt1 := makeLocalCreditTree().addCredit(TokenInfoETH, big.NewInt(100))
+
+	// attempts to transfer 200 ETH when only 100 is currently available
+	ok, _ := finalizeDepositProof(1, lbt1, aggDeps[1], collatedDeps[1])
+	require.False(t, ok, "transfer of ETH (200), exceeded current credit balance (100)")
 }
